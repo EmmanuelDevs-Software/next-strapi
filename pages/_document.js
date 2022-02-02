@@ -13,8 +13,7 @@ class MyDocument extends Document {
         <body>
           <Main />
           <NextScript />
-          <div
-          id="modal-root"></div>
+          <div id='modal-root'></div>
         </body>
       </Html>
     )
@@ -22,6 +21,3 @@ class MyDocument extends Document {
 }
 
 export default MyDocument
-
-
-//https://nextjs.org/docs/advanced-features/custom-document

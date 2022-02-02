@@ -1,16 +1,16 @@
-import Layout from "@/components/Layout";
-import { API_URL } from "@/config/index";
-import Link from "next/link";
-import Image from "next/Image";
-import { useRouter } from "next/router";
-import { useState } from "react";
-import styles from "@/styles/Form.module.css";
-import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import { FaImage } from "react-icons/fa";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { useState } from "react";
+import { useRouter } from "next/router";
+import Link from "next/link";
+import Image from "next/image";
+import Layout from "@/components/Layout";
 import Modal from "@/components/Modal";
 import ImageUpload from "@/components/ImageUpload";
+import { API_URL } from "@/config/index";
+import styles from "@/styles/Form.module.css";
 
 export default function EditEventPage({ evt }) {
   const [values, setValues] = useState({
@@ -22,42 +22,38 @@ export default function EditEventPage({ evt }) {
     time: evt.time,
     description: evt.description,
   });
-
   const [imagePreview, setImagePreview] = useState(
     evt.image ? evt.image.formats.thumbnail.url : null
   );
-
   const [showModal, setShowModal] = useState(false);
 
   const router = useRouter();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    //Validation
+
+    // Validation
     const hasEmptyFields = Object.values(values).some(
       (element) => element === ""
     );
 
     if (hasEmptyFields) {
-      toast.error("Please fill in all fields!");
+      toast.error("Please fill in all fields");
     }
-    if (!hasEmptyFields) {
-      const res = await fetch(`${API_URL}/events/${evt.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
 
-      if (res.ok) {
-        const evt = await res.json();
-        router.push(`/events/${evt.slug}`);
-      }
+    const res = await fetch(`${API_URL}/events/${evt.id}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(values),
+    });
 
-      if (!res.ok) {
-        toast.error("Something went Worng");
-      }
+    if (!res.ok) {
+      toast.error("Something Went Wrong");
+    } else {
+      const evt = await res.json();
+      router.push(`/events/${evt.slug}`);
     }
   };
 
@@ -74,10 +70,10 @@ export default function EditEventPage({ evt }) {
   };
 
   return (
-    <Layout title="Edit Event">
+    <Layout title="Add New Event">
       <Link href="/events">Go Back</Link>
       <h1>Edit Event</h1>
-
+      <ToastContainer />
       <form onSubmit={handleSubmit} className={styles.form}>
         <div className={styles.grid}>
           <div>
@@ -91,11 +87,11 @@ export default function EditEventPage({ evt }) {
             />
           </div>
           <div>
-            <label htmlFor="performers">Performes</label>
+            <label htmlFor="performers">Performers</label>
             <input
               type="text"
-              id="performers"
               name="performers"
+              id="performers"
               value={values.performers}
               onChange={handleInputChange}
             />
@@ -104,8 +100,8 @@ export default function EditEventPage({ evt }) {
             <label htmlFor="venue">Venue</label>
             <input
               type="text"
-              id="venue"
               name="venue"
+              id="venue"
               value={values.venue}
               onChange={handleInputChange}
             />
@@ -114,8 +110,8 @@ export default function EditEventPage({ evt }) {
             <label htmlFor="address">Address</label>
             <input
               type="text"
-              id="address"
               name="address"
+              id="address"
               value={values.address}
               onChange={handleInputChange}
             />
@@ -124,8 +120,8 @@ export default function EditEventPage({ evt }) {
             <label htmlFor="date">Date</label>
             <input
               type="date"
-              id="date"
               name="date"
+              id="date"
               value={moment(values.date).format("yyyy-MM-DD")}
               onChange={handleInputChange}
             />
@@ -134,8 +130,8 @@ export default function EditEventPage({ evt }) {
             <label htmlFor="time">Time</label>
             <input
               type="text"
-              id="time"
               name="time"
+              id="time"
               value={values.time}
               onChange={handleInputChange}
             />
@@ -143,19 +139,19 @@ export default function EditEventPage({ evt }) {
         </div>
 
         <div>
-          <label htmlFor="description">Description</label>
+          <label htmlFor="description">Event Description</label>
           <textarea
             type="text"
-            id="description"
             name="description"
+            id="description"
             value={values.description}
             onChange={handleInputChange}
-          />
+          ></textarea>
         </div>
 
         <input type="submit" value="Update Event" className="btn" />
-        <ToastContainer />
       </form>
+
       <h2>Event Image</h2>
       {imagePreview ? (
         <Image src={imagePreview} height={100} width={170} />
@@ -166,23 +162,26 @@ export default function EditEventPage({ evt }) {
       )}
 
       <div>
-        <button onClick={() => setShowModal(true)} className="btn-seconday">
-          <FaImage /> &nbsp; Set image
+        <button
+          onClick={() => setShowModal(true)}
+          className="btn-secondary btn-icon"
+        >
+          <FaImage /> Set Image
         </button>
-
-        <Modal show={showModal} onClose={() => setShowModal(false)}>
-          <ImageUpload evtId={evt.id} imageUploaded={imageUploaded} />
-        </Modal>
       </div>
+
+      <Modal show={showModal} onClose={() => setShowModal(false)}>
+        <ImageUpload evtId={evt.id} imageUploaded={imageUploaded} />
+      </Modal>
     </Layout>
   );
 }
 
-export async function getServerSideProps({ params: { id } }) {
+export async function getServerSideProps({ params: { id }, req }) {
   const res = await fetch(`${API_URL}/events/${id}`);
-
   const evt = await res.json();
-  console.log("evt", evt);
+
+  console.log(req.headers.cookie);
   return {
     props: {
       evt,

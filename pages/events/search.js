@@ -33,11 +33,6 @@ export async function getServerSideProps({ query: { term } }) {
     },
   })
 
-    /**
-   * Single filter
-   *   const res = await fetch(`${API_URL}/events?name_contains=${term}`)
-   */
-
   const res = await fetch(`${API_URL}/events?${query}`)
   const events = await res.json()
 
